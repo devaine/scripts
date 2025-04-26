@@ -9,7 +9,7 @@ BATTERY=$(acpi | grep -vwE "(unavailable)" | grep -o '[0-9]' | head -n 1)
 
 # Daemon Constants
 WARNING_PERCENT=35
-FULL_PERCENT=99
+FULL_PERCENT=98
 BAT_PERCENT=$(acpi -b | grep "Battery $BATTERY" | head -n 1 | grep -P -o "[0-9]+(?=%)")
 DISCHARGING_COUNT=$(acpi -b | grep "Battery $BATTERY" | grep -c "Discharging")
 NOTCHARGING_COUNT=$(acpi -b | grep "Battery $BATTERY" | grep "until" | grep -c "Not Charging")
@@ -21,11 +21,13 @@ FULL_BAT_FILE=/tmp/battery_full
 battery-full() {
 	notify-send "Battery Full" "Battery is fully charged!" -i "battery-full-charged" -r 9991 -t 5000
 	touch $FULL_BAT_FILE
+	rm -rf $LOW_BAT_FILE
 }
 
 battery-low() {
 	notify-send "Low Battery" "${BAT_PERCENT}% of battery remaining." -u critical -i "battery-caution" -r 9991
 	touch $LOW_BAT_FILE
+	rm -rf $FULL_BAT_FILE
 }
 
 battery-normal() {
