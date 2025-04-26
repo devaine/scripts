@@ -9,6 +9,6 @@ if [[ $(pgrep gammastep) =~ ^[0-9]+$ ]]
 		kill $(pgrep gammastep)
 
 	else
-		gammastep -PO 3200
+		gammastep -PO 2900
 fi
 

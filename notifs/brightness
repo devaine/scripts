@@ -1,0 +1,24 @@
+#!/bin/bash
+
+CURRENT_BRIGHTNESS=$(xbacklight -get)
+
+bright_inc() {
+	dunstify "Increasing Brightness" "Current Brightness: ${CURRENT_BRIGHTNESS}%" -i "display-brightness-medium-symbolic" -t 5000 -r 9991
+}
+
+bright_dec() {
+	dunstify "Decreasing Brightness" "Current Brightness: ${CURRENT_BRIGHTNESS}%" -i "display-brightness-low-symbolic" -t 5000 -r 9991
+
+}
+
+while test $# -gt 0; do
+	case "$1" in
+	inc)
+		bright_inc && exit 0
+		;;
+
+	dec)
+		bright_dec && exit 0
+		;;
+	esac
+done

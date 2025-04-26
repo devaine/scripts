@@ -1,0 +1,122 @@
+#!/bin/bash
+
+CURRENT_VOL=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{ print $2 }')
+VOL_PRESENT=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{ print $2 }' | cut -c 3,4)
+
+CURRENT_MIC_VOL=$(wpctl get-volume @DEFAULT_AUDIO_SOURCE@ | awk '{ print $2 }')
+MIC_PRESENT=$(wpctl get-volume @DEFAULT_AUDIO_SOURCE@ | awk '{ print $2 }' | cut -c 3,4)
+
+CURRENT_MUTE=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{ print $3 }' | tr -d '[]')
+CURRENT_MIC_MUTE=$(wpctl get-volume @DEFAULT_AUDIO_SOURCE@ | awk '{ print $3 }' | tr -d '[]')
+
+vol_inc() {
+	if [[ "$CURRENT_VOL" == "0.0"* ]]; then
+		dunstify "Increasing Volume" "Current Volume: $(echo "$VOL_PRESENT" | cut -c 2)%" -i "audio-volume-high" -t 5000 -r 9991
+	elif [[ "$CURRENT_VOL" == "1.00" ]]; then
+		dunstify "Increasing Volume" "Current Volume: 100%" -i "audio-volume-high" -t 5000 -r 9991
+	else
+		dunstify "Increasing Volume" "Current Volume: ${VOL_PRESENT}%" -i "audio-volume-high" -t 5000 -r 9991
+	fi
+
+}
+
+vol_dec() {
+	if [[ "$CURRENT_VOL" == "0.0"* ]]; then
+		dunstify "Decreasing Volume" "Current Volume: $(echo "$VOL_PRESENT" | cut -c 2)%" -i "audio-volume-medium" -t 5000 -r 9991
+	elif [[ "$CURRENT_VOL" == "1.00" ]]; then
+		dunstify "Decreasing Volume" "Current Volume: 100%" -i "audio-volume-medium" -t 5000 -r 9991
+	else
+		dunstify "Decreasing Volume" "Current Volume: ${VOL_PRESENT}%" -i "audio-volume-medium" -t 5000 -r 9991
+	fi
+}
+
+vol_mute_toggle() {
+	# If "MUTED" doesn't exist, then send notification and toggle mute, otherwise (if "MUTED" DOES exist, send notif and unmute
+	if [ "$CURRENT_MUTE" == "MUTED" ]; then
+		if [[ "$CURRENT_VOL" == "0.0"* ]]; then
+			dunstify "Currently Muting" "Current Volume: $(echo "$VOL_PRESENT" | cut -c 2)%" -i "audio-volume-muted" -t 5000 -r 9991
+		elif [[ "$CURRENT_VOL" == "1.00" ]]; then
+			dunstify "Currently Muting" "Current Volume: 100%" -i "audio-volume-muted" -t 5000 -r 9991
+		else
+			dunstify "Currently Muting" "Current Volume: ${VOL_PRESENT}%" -i "audio-volume-muted" -t 5000 -r 9991
+		fi
+	else
+		if [[ "$CURRENT_VOL" == "0.0"* ]]; then
+			dunstify "Currently Unmuting" "Current Volume: $(echo "$VOL_PRESENT" | cut -c 2)%" -i "audio-volume-medium" -t 5000 -r 9991
+		elif [[ "$CURRENT_VOL" == "1.00" ]]; then
+			dunstify "Currently Unmuting" "Current Volume: 100%" -i "audio-volume-medium" -t 5000 -r 9991
+		else
+			dunstify "Currently Unmuting" "Current Volume: ${VOL_PRESENT}%" -i "audio-volume-medium" -t 5000 -r 9991
+		fi
+	fi
+}
+
+micInc() {
+	if [[ "$CURRENT_MIC_VOL" == "0.0"* ]]; then
+		dunstify "Increasing Microphone Volume" "Current Volume: $(echo "$MIC_PRESENT" | cut -c 2)%" -i "audio-input-microphone-high" -t 5000 -r 9991
+	elif [[ "$CURRENT_MIC_VOL" == "1.00" ]]; then
+		dunstify "Increasing Microphone Volume" "Current Volume: 100%" -i "audio-input-microphone-high" -t 5000 -r 9991
+	else
+		dunstify "Increasing Microphone Volume" "Current Volume: ${MIC_PRESENT}%" -i "audio-input-microphone-high" -t 5000 -r 9991
+	fi
+}
+
+micDec() {
+	if [[ "$CURRENT_MIC_VOL" == "0.0"* ]]; then
+		dunstify "Decreasing Microphone Volume" "Current Volume: $(echo "$MIC_PRESENT" | cut -c 2)%" -i "audio-input-microphone-low" -t 5000 -r 9991
+	elif [[ "$CURRENT_MIC_VOL" == "1.00" ]]; then
+		dunstify "Decreasing Microphone Volume" "Current Volume: 100%" -i "audio-input-microphone-low" -t 5000 -r 9991
+	else
+		dunstify "Decreasing Microphone Volume" "Current Volume: ${MIC_PRESENT}%" -i "audio-input-microphone-low" -t 5000 -r 9991
+	fi
+}
+
+mic_mute_toggle() {
+	# If "MUTED" doesn't exist, then send notification and toggle mute, otherwise (if "MUTED" DOES exist, send notif and unmute
+	if [ "$CURRENT_MIC_MUTE" == "MUTED" ]; then
+		if [[ "$CURRENT_MIC_VOL" == "0.0"* ]]; then
+			dunstify "Currently Muting Microphone" "Current Volume: $(echo "$VOL_PRESENT" | cut -c 2)%" -i "audio-input-microphone-muted" -t 5000 -r 9991
+		elif [[ "$CURRENT_MIC_VOL" == "1.00" ]]; then
+			dunstify "Currently Muting Microphone" "Current Volume: 100%" -i "audio-input-microphone-muted" -t 5000 -r 9991
+		else
+			dunstify "Currently Muting Microphone" "Current Volume: ${VOL_PRESENT}%" -i "audio-input-microphone-muted" -t 5000 -r 9991
+		fi
+	else
+		if [[ "$CURRENT_MIC_VOL" == "0.0"* ]]; then
+			dunstify "Currently Unmuting Microphone" "Current Volume: $(echo "$VOL_PRESENT" | cut -c 2)%" -i "audio-input-microphone-high" -t 5000 -r 9991
+		elif [[ "$CURRENT_MIC_VOL" == "1.00" ]]; then
+			dunstify "Currently Unmuting Microphone" "Current Volume: 100%" -i "audio-input-microphone-high" -t 5000 -r 9991
+		else
+			dunstify "Currently Unmuting Microphone" "Current Volume: ${VOL_PRESENT}%" -i "audio-input-microphone-high" -t 5000 -r 9991
+		fi
+	fi
+}
+
+while test $# -gt 0; do
+	case "$1" in
+	inc)
+		vol_inc && exit 0
+		;;
+
+	dec)
+		vol_dec && exit 0
+		;;
+
+	mute-toggle)
+		vol_mute_toggle && exit 0
+		;;
+
+	micInc)
+		micInc && exit 0
+		;;
+
+	micDec)
+		micDec && exit 0
+		;;
+
+	micMute)
+		mic_mute_toggle && exit 0
+		;;
+
+	esac
+done

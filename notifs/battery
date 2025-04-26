@@ -1,0 +1,73 @@
+#!/bin/bash
+
+# Constants (access to display)
+export DISPLAY=:0
+export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/1000/bus"
+
+# Find out which battery is the laptop's battery
+BATTERY=$(acpi | grep -vwE "(unavailable)" | grep -o '[0-9]' | head -n 1)
+
+# Daemon Constants
+WARNING_PERCENT=35
+FULL_PERCENT=99
+BAT_PERCENT=$(acpi -b | grep "Battery $BATTERY" | head -n 1 | grep -P -o "[0-9]+(?=%)")
+DISCHARGING_COUNT=$(acpi -b | grep "Battery $BATTERY" | grep -c "Discharging")
+NOTCHARGING_COUNT=$(acpi -b | grep "Battery $BATTERY" | grep "until" | grep -c "Not Charging")
+## Conditioning Files
+LOW_BAT_FILE=/tmp/battery_low
+FULL_BAT_FILE=/tmp/battery_full
+
+# Functions
+battery-full() {
+	notify-send "Battery Full" "Battery is fully charged!" -i "battery-full-charged" -r 9991 -t 5000
+	touch $FULL_BAT_FILE
+}
+
+battery-low() {
+	notify-send "Low Battery" "${BAT_PERCENT}% of battery remaining." -u critical -i "battery-caution" -r 9991
+	touch $LOW_BAT_FILE
+}
+
+battery-normal() {
+	if [ "$1" == "Normal" ]; then
+		rm $FULL_BAT_FILE
+
+	elif [ "$1" == "Charging" ]; then
+		rm $LOW_BAT_FILE
+	fi
+}
+
+# IF the batttery is discharging AND there is a FULL_BAT_FILE exists AND battery is less than 99%
+if [ "$BAT_PERCENT" -lt $FULL_PERCENT ] && [ "$DISCHARGING_COUNT" -eq 1 ] && [ -f $FULL_BAT_FILE ]; then
+	#echo "hit normal + full file exists + less than full %"
+	battery-normal "Normal"
+
+# If charging, AND less than full percentage AND LOW_BAT_FILE exists:
+elif [ "$BAT_PERCENT" -lt $FULL_PERCENT ] && [ "$DISCHARGING_COUNT" -eq 0 ] && [ -f "$EMPTY_BAT_FILE" ]; then
+	#echo "hit normal + warning file exists + more than warning %"
+	battery-normal "Charging"
+fi
+
+# IF the battery is charging AND is full (+ hasn't show any notif yet):
+if [ "$BAT_PERCENT" -ge $FULL_PERCENT ] && [ ! -f $FULL_BAT_FILE ] && [ "$DISCHARGING_COUNT" = 0 ]; then
+	#echo "hit full + charging"
+	battery-full
+
+# Another condition, battery could be full, yet it won't be charging:
+elif [ "$BAT_PERCENT" -ge $FULL_PERCENT ] && [ "$NOTCHARGING_COUNT" = 1 ] && [ ! -f $LOW_BAT_FILE ]; then
+	#echo "hit full + not charging"
+	battery-full
+
+# IF the battery is low and it's discharging (+ hasn't shown any notif yet):
+elif [ "$BAT_PERCENT" -le $WARNING_PERCENT ] && [ "$DISCHARGING_COUNT" -eq 1 ] && [ ! -f $LOW_BAT_FILE ]; then
+	#echo "hit low + discharging"
+	battery-low
+
+# If LOW_BAT_FILE Exists, Spam Until It's Charging
+elif [ "$BAT_PERCENT" -le $WARNING_PERCENT ] && [ "$DISCHARGING_COUNT" -eq 1 ] && [ -f $LOW_BAT_FILE ]; then
+	notify-send "Low Battery" "${BAT_PERCENT}% of battery remaining." -u critical -i "battery-caution" -r 9991
+fi
+
+# Debug commands
+echo "$BAT_PERCENT is the battery percent"
+echo "$DISCHARGING_COUNT  --  1 = discharging, 0 = charging"

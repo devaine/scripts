@@ -1,0 +1,28 @@
+#!/bin/bash
+
+export DISPLAY=:0
+export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/1000/bus"
+
+# Find out which battery is the laptop's battery
+BATTERY=$(acpi | grep -vwE "(unavailable)" | grep -o '[0-9]' | head -n 1)
+
+# 1 = Charging
+# 0 = Discharging
+BAT_CHARGING=$1
+
+# Filtering one more time to find the percentage of the laptop's battery level
+BAT_LEVEL=$(acpi -b | grep "Battery $BATTERY" | grep -P -o '[0-9]+(?=%)')
+
+CHARGE_FILE=/tmp/laptop-charging
+DISCHARGE_FILE=/tmp/laptop-discharging
+
+# Notification handling
+if [ "$BAT_CHARGING" -eq 1 ] && [ ! -f $CHARGE_FILE ]; then
+	rm $DISCHARGE_FILE
+	touch $CHARGE_FILE
+	/usr/bin/notify-send "Charging" "Charging battery at ${BAT_LEVEL}%" -u low -i "battery-level-50-charging-symbolic" -t 5000 -r 9991
+elif [ "$BAT_CHARGING" -eq 0 ] && [ ! -f $DISCHARGE_FILE ]; then
+	rm $CHARGE_FILE
+	touch $DISCHARGE_FILE
+	/usr/bin/notify-send "Discharging" "${BAT_LEVEL}% remaining" -u low -i "battery-level-70-symbolic" -t 5000 -r 9991
+fi

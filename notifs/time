@@ -1,0 +1,4 @@
+#!/bin/bash
+CURRENT_TIME=$(date)
+
+notify-send "Date / Time Info:" "${CURRENT_TIME}" -t 5000 -r 9991
