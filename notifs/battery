@@ -71,5 +71,5 @@ elif [ "$BAT_PERCENT" -le $WARNING_PERCENT ] && [ "$DISCHARGING_COUNT" -eq 1 ] &
 fi
 
 # Debug commands
-echo "$BAT_PERCENT is the battery percent"
-echo "$DISCHARGING_COUNT  --  1 = discharging, 0 = charging"
+#echo "$BAT_PERCENT is the battery percent"
+#echo "$DISCHARGING_COUNT  --  1 = discharging, 0 = charging"

@@ -7,5 +7,5 @@ NOTCHARGING_COUNT=$(acpi -b | grep "Battery $BATTERY" | grep -c "Not Charging")
 if [[ $DISCHARGING_COUNT -eq 0 ]] || [[ $NOTCHARGING_COUNT -eq 1 ]]; then
 	dunstify "Battery Status" "Battery is currently charging at ${BAT_PERCENT}%" -i "battery-level-50-charging-symbolic" -r 9991 -t 5000
 else
-	dunstify "Battery Status" "Battery is currently at ${BAT_PERCENT}%" -i "battery-level-50-symbolic" -r 9991 -t 5000
+	dunstify "Battery Status" "Battery is currently discharging at ${BAT_PERCENT}%" -i "battery-level-50-symbolic" -r 9991 -t 5000
 fi
