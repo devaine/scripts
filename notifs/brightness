@@ -11,6 +11,10 @@ bright_dec() {
 
 }
 
+keybind-func() {
+	echo "$CURRENT_BRIGHTNESS"
+}
+
 while test $# -gt 0; do
 	case "$1" in
 	inc)
@@ -20,5 +24,10 @@ while test $# -gt 0; do
 	dec)
 		bright_dec && exit 0
 		;;
+
+	keybind)
+		keybind-func && exit 0
+		;;
+
 	esac
 done

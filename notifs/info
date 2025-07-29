@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Enter scripts directory
+cd ~/.scripts/notifs || exit
+
+# Constants
+CURRENT_VOL=$(./volume keybind | grep -o '^[^ ]*')
+CURRENT_MIC_VOL=$(./volume keybind | awk '{ print $2 }')
+BRIGHTNESS=$(./brightness keybind)
+
+# Variables for display, basically multiplies floats to integers
+DISPLAY_VOL=$(awk '{ print $1 * $2 }' <<<"${CURRENT_VOL} 100")
+DISPLAY_MIC_VOL=$(awk '{ print $1 * $2 }' <<<"${CURRENT_MIC_VOL} 100")
+
+dunstify "All other info:" "Brightness: $BRIGHTNESS%\nCurrent Volume: $DISPLAY_VOL%\nCurrent Mic. Volume: $DISPLAY_MIC_VOL%"

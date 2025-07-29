@@ -92,6 +92,10 @@ mic_mute_toggle() {
 	fi
 }
 
+keybind-func() {
+	echo "$CURRENT_VOL" "$CURRENT_MIC_VOL"
+}
+
 while test $# -gt 0; do
 	case "$1" in
 	inc)
@@ -116,6 +120,10 @@ while test $# -gt 0; do
 
 	micMute)
 		mic_mute_toggle && exit 0
+		;;
+
+	keybind)
+		keybind-func && exit 0
 		;;
 
 	esac

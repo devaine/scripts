@@ -25,7 +25,7 @@ battery-full() {
 }
 
 battery-low() {
-	notify-send "Low Battery" "${BAT_PERCENT}% of battery remaining." -u critical -i "battery-caution" -r 9991
+	notify-send "Low Battery" "${BAT_PERCENT}% of battery remaining." -u critical -i "battery-caution" -r 9991 -t 5000
 	touch $LOW_BAT_FILE
 	rm -rf $FULL_BAT_FILE
 }
@@ -67,7 +67,7 @@ elif [ "$BAT_PERCENT" -le $WARNING_PERCENT ] && [ "$DISCHARGING_COUNT" -eq 1 ] &
 
 # If LOW_BAT_FILE Exists, Spam Until It's Charging
 elif [ "$BAT_PERCENT" -le $WARNING_PERCENT ] && [ "$DISCHARGING_COUNT" -eq 1 ] && [ -f $LOW_BAT_FILE ]; then
-	notify-send "Low Battery" "${BAT_PERCENT}% of battery remaining." -u critical -i "battery-caution" -r 9991
+	notify-send "Low Battery" "${BAT_PERCENT}% of battery remaining." -u critical -i "battery-caution" -r 9991 -t 5000
 fi
 
 # Debug commands

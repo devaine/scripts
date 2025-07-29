@@ -1,0 +1,3 @@
+#!/bin/bash
+dunstify "Switching Window" "Current Window: $1" -t 1000 -r 5000
+swaymsg workspace number "$1"
