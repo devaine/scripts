@@ -1,12 +1,20 @@
+#include <atomic>
+#include <chrono>
+#include <csignal>
 #include <cstdio>
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <sched.h> // pid_t data type
 #include <sys/select.h>
+#include <thread>
 #include <unistd.h> // For fork();
 
 using namespace std;
+
+// atomic type => ensure that variable can be safely accessed and modified.
+// // 1 = Suddenly at 0%, 0 = Not at 0%
+atomic<int> BAT_EMPTY(0);
 
 // If another instance of this program is running...
 const char *lockFilePath = "/tmp/bat-daemon-run";
@@ -25,6 +33,17 @@ void createLockFile() {
 
 // Removes file.
 void removeLockFile() { remove(lockFilePath); }
+
+void send_notifs_empty() {
+  string command = "notify-send 'Low Battery' 'ALERT! 0% Battery Remaining.' "
+                   "-u critical -i 'battery-caution' -t 5000";
+
+  // If battery is empty...
+  while (BAT_EMPTY.load() == 1) {
+    system(command.c_str());
+    this_thread::sleep_for(chrono::seconds(5));
+  }
+}
 
 void send_notifs_warn(const int &percent) {
   // Formulate command
@@ -62,41 +81,14 @@ void send_notifs_full() {
   system(command.c_str());
 }
 
-// Turn program into a daemon.
-void daemonize() {
-  pid_t pid = fork();
-
-  // if forking fails, exit.
-  if (pid < 0) {
-    exit(EXIT_FAILURE);
-  }
-
-  if (pid > 0) {
-    exit(EXIT_SUCCESS);
-  }
-
-  // New session: if fails, exit.
-  // - New process becomes the leader
-  if (setsid() < 0) {
-    exit(EXIT_FAILURE);
-  }
-
-  // Change directory to root
-  chdir("/");
-
-  // Redirects all streams to /dev/null
-  freopen("/dev/null", "r", stdin);
-  freopen("/dev/null", "w", stdout);
-  freopen("/dev/null", "w", stderr);
-}
-
 // Checks battery info. (Charging, Discharging, etc.)
 void battery() {
   int OLD_BAT_PERCENT = 100; // Maxing out to prevent bugs
   int CHARGE = 0;            // 1 = Charging, 0 = Discharging
   int BAT_FULL = 0;          // 1 = Full, 0 = Not Full
+
   while (true) {
-    int BAT_WARN = 36;
+    int BAT_WARN = 35;
     // Read and Grab File Info:
 
     // ifstream (input file stream) class: operates on files (I/O)
@@ -120,35 +112,45 @@ void battery() {
     tv.tv_sec = 0;
     tv.tv_usec = 100000;
 
-    if (BAT_PERCENT <= BAT_WARN) {
-      if ((BAT_PERCENT < OLD_BAT_PERCENT) && (BAT_STATUS == "Discharging")) {
-        CHARGE = 0;
-        OLD_BAT_PERCENT = BAT_PERCENT;
-        send_notifs_warn(BAT_PERCENT);
-      }
-    }
-
+    // If the actual battery is charging, update all values
     if (BAT_STATUS == "Charging") {
-      if ((BAT_PERCENT < 99) && (CHARGE == 0)) {
+      if (BAT_PERCENT < 99 && CHARGE == 0) {
         CHARGE = 1;
         OLD_BAT_PERCENT = BAT_PERCENT;
         BAT_FULL = 0;
         send_notifs_charge(BAT_PERCENT, CHARGE);
-      }
 
-      if (BAT_PERCENT >= 99 && BAT_FULL == 0) {
+      } else if (BAT_PERCENT >= 99 && BAT_FULL == 0) {
         BAT_FULL = 1;
         CHARGE = 1;
         send_notifs_full();
+
+      } else if (BAT_PERCENT > OLD_BAT_PERCENT) {
+        OLD_BAT_PERCENT = BAT_PERCENT;
+      }
+
+      if (BAT_EMPTY == 1) {
+        BAT_EMPTY.store(0);
       }
     }
 
-    if (BAT_STATUS == "Discharging" && CHARGE == 1) {
-      CHARGE = 0;
-      send_notifs_charge(BAT_PERCENT, CHARGE);
+    // If the actual battery is discharging, update all values
+    if (BAT_STATUS == "Discharging") {
+      if (CHARGE == 1) {
+        CHARGE = 0;
+        send_notifs_charge(BAT_PERCENT, CHARGE);
 
-      if (BAT_PERCENT < 99) {
+      } else if (BAT_PERCENT < 99 && BAT_FULL == 1) {
         BAT_FULL = 0;
+
+      } else if (BAT_PERCENT <= BAT_WARN && BAT_PERCENT < OLD_BAT_PERCENT) {
+        OLD_BAT_PERCENT = BAT_PERCENT;
+        send_notifs_warn(BAT_PERCENT);
+      }
+
+      // Change value of BAT_EMPTY (alert notification)
+      if (BAT_PERCENT == 0 && BAT_EMPTY == 0) {
+        BAT_EMPTY.store(1);
       }
     }
 
@@ -158,16 +160,30 @@ void battery() {
 
 // Initializer
 int main() {
+  // Change directory to root
+  chdir("/");
+
+  // Redirects all streams to /dev/null
+  freopen("/dev/null", "r", stdin);
+  freopen("/dev/null", "w", stdout);
+  freopen("/dev/null", "w", stderr);
+
   if (isRunning()) {
-    cout << "Another process already exists!" << endl;
-    return 1;
+    ifstream lockFile(lockFilePath);
+    int pid;
+
+    lockFile >> pid;
+
+    removeLockFile();
+
+    kill(pid, 1);
   }
 
   createLockFile();
 
-  daemonize();
   battery();
 
-  removeLockFile();
+  thread background(send_notifs_empty);
+
   return 0;
 }
