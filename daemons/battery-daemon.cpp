@@ -6,6 +6,7 @@
 #include <fstream>
 #include <iostream>
 #include <sched.h> // pid_t data type
+#include <string>
 #include <sys/select.h>
 #include <thread>
 #include <unistd.h> // For fork();
@@ -35,13 +36,29 @@ void createLockFile() {
 void removeLockFile() { remove(lockFilePath); }
 
 void send_notifs_empty() {
-  string command = "notify-send 'Low Battery' 'ALERT! 0% Battery Remaining.' "
-                   "-u critical -i 'battery-caution' -t 5000";
 
-  // If battery is empty...
-  while (BAT_EMPTY.load() == 1) {
-    system(command.c_str());
-    this_thread::sleep_for(chrono::seconds(5));
+  while (true) {
+    struct timeval tv;
+
+    tv.tv_sec = 0;
+    tv.tv_usec = 100000;
+
+    ifstream BAT_PERCENT_FILE("/sys/class/power_supply/BAT0/capacity");
+    int BAT_PERCENT;
+
+    BAT_PERCENT_FILE >> BAT_PERCENT;
+
+    string command =
+        "notify-send 'Low Battery' '<b>ALERT!</b> " + to_string(BAT_PERCENT) +
+        "% Battery Remaining.' -u critical -i 'battery-caution' -t 5000";
+
+    // If battery is empty...
+    if (BAT_EMPTY.load() == 1) {
+      system(command.c_str());
+      this_thread::sleep_for(chrono::seconds(5));
+    } else {
+      select(0, NULL, NULL, NULL, &tv);
+    }
   }
 }
 
@@ -129,7 +146,7 @@ void battery() {
         OLD_BAT_PERCENT = BAT_PERCENT;
       }
 
-      if (BAT_EMPTY == 1) {
+      if (BAT_EMPTY.load() == 1) {
         BAT_EMPTY.store(0);
       }
     }
@@ -149,7 +166,7 @@ void battery() {
       }
 
       // Change value of BAT_EMPTY (alert notification)
-      if (BAT_PERCENT == 0 && BAT_EMPTY == 0) {
+      if (BAT_PERCENT < 10 && BAT_EMPTY.load() == 0) {
         BAT_EMPTY.store(1);
       }
     }
@@ -164,9 +181,9 @@ int main() {
   chdir("/");
 
   // Redirects all streams to /dev/null
-  freopen("/dev/null", "r", stdin);
-  freopen("/dev/null", "w", stdout);
-  freopen("/dev/null", "w", stderr);
+  // freopen("/dev/null", "r", stdin);
+  // freopen("/dev/null", "w", stdout);
+  // freopen("/dev/null", "w", stderr);
 
   if (isRunning()) {
     ifstream lockFile(lockFilePath);
@@ -181,9 +198,10 @@ int main() {
 
   createLockFile();
 
-  battery();
+  thread bg(send_notifs_empty);
+  bg.detach();
 
-  thread background(send_notifs_empty);
+  battery();
 
   return 0;
 }
