@@ -4,7 +4,9 @@ import subprocess
 import json
 import os
 import asyncio
+from time import sleep
 from dotenv import load_dotenv
+import urllib3
 
 load_dotenv()  # Loads up .env file
 
@@ -86,8 +88,19 @@ async def newIPCheck():
         getCurrentIP()  # update current ip
         await newIPCheck()
 
+def waitForConnection():
+    while True:
+        try:
+            response = urllib3.request("GET", "https://ifconfig.me")
+            return
+        except urllib3.exceptions.MaxRetryError:
+            print("Failed connection!")
+            sleep(1)
+            pass
 
 def main():
+    waitForConnection()
+    
     if not os.path.exists("public_ip"):
         getCurrentIP()
     elif not os.path.exists(".env"):

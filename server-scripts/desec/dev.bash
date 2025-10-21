@@ -4,8 +4,8 @@
 if [ ! -d .venv ]; then
 	python3 -m venv .venv
 	source .venv/bin/activate
-	pip install -U python-dotenv
-	pip install --upgrade pip # Update pip to the latest version
+	pip install -U python-dotenv urllib3
+	pip install -U pip # Update pip to the latest version
 fi
 
 echo 'Make sure to run ". .venv/bin/activate" to enter the development environment'
