@@ -2,5 +2,8 @@ on: [push]
 jobs:
   test:
     runs-on: docker
+    container:
+      image: ubuntu:latest
     steps:
-      - run: echo "hello world"
+      - run: |
+        ls -la
