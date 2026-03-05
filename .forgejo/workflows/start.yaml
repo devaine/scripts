@@ -3,7 +3,7 @@ jobs:
   desec-script:
     runs-on: docker
     container:
-      image: node:latest
+      image: node-22-bookworm:latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v6
