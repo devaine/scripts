@@ -1,0 +1,4 @@
+services:
+  desec-script:
+    image: git.devdoes.work/devaine/desec-script:latest
+    container_name: desec-script
