@@ -1,2 +1,4 @@
 .env
 server-scripts/desec/public_ip
+data
+venv
