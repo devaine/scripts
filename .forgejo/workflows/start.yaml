@@ -6,4 +6,6 @@ jobs:
       image: ubuntu:latest
     steps:
       - run: |
-        ls -la
+          ls -la
+          echo "test"
+
