@@ -3,7 +3,7 @@ jobs:
   test:
     runs-on: docker
     container:
-      image: ubuntu:latest
+      image: node:latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v6
