@@ -15,4 +15,4 @@ else
 	source venv/bin/activate
 fi
 
-python main.py
+python3 main.py
