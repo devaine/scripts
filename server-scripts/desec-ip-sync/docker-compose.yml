@@ -1,4 +1,8 @@
 services:
-  desec-script:
-    image: git.devdoes.work/devaine/desec-script:latest
-    container_name: desec-script
+  desec:
+    container_name: desec
+    image: git.devdoes.work/devaine/scripts:desec
+    platform: "linux/arm64"
+    environment:
+      - DESEC_TOKEN=${DESEC_TOKEN}
+      - CURRENT_DOMAIN=${CURRENT_DOMAIN}

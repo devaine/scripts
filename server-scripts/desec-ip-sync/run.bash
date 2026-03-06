@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ ! -f .env ]; then
+	env | grep DESEC_TOKEN >>.env
+	env | grep CURRENT_DOMAIN >>.env
+fi
+
 # If virtual environment does exist..
 if [ ! -d venv ]; then
 	python3 -m venv venv

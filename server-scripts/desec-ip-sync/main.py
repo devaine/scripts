@@ -11,7 +11,7 @@ load_dotenv()
 DOMAIN = os.getenv("CURRENT_DOMAIN")
 DESEC_TOKEN = os.getenv("DESEC_TOKEN")
 IGNORED_SUBDOMAINS_PREFIXES = ["mail._domainkey.mail", "mail", "_dmarc.mail", "skyguy"]
-TIMEOUT = 10  # In seconds, 600 = 10min, 900 = 15m, 1800 = 30min
+TIMEOUT = 1800  # In seconds, 600 = 10min, 900 = 15m, 1800 = 30min
 
 # Credits:
 # https://desec.readthedocs.io/en/latest/dns/rrsets.html#modifying-an-rrset
