@@ -1,4 +1,8 @@
 FROM node:latest
 
-CMD ["tail", "-f", "/dev/null"]
+COPY . /desec
+
+WORKDIR /desec/server-scripts/desec-ip-sync/
+
+CMD ["bash", "run.bash"]
 
