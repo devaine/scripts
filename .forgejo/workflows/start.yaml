@@ -31,7 +31,7 @@ jobs:
           context: .
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: devaine/scripts:desec
+          tags: git.devdoes.work/devaine/scripts:desec
           file: server-scripts/desec-ip-sync/Dockerfile
 
 
