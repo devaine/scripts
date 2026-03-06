@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 node:latest
+FROM node:latest
 
 CMD ["tail", "-f", "/dev/null"]
 
