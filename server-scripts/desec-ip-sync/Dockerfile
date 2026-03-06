@@ -10,7 +10,7 @@ RUN apt update && apt install python3.11-venv -y
 
 RUN bash run.bash
 
-RUN source venv/bin/activate
+ENV PATH="$PWD/venv/bin:$PATH"
 
 CMD ["python3", "main.py"]
 
