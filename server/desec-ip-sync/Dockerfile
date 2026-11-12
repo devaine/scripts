@@ -6,7 +6,7 @@ WORKDIR /desec/server/desec-ip-sync/
 
 SHELL ["bash", "-c"]
 
-RUN apt update && apt install python3.11-venv -y
+RUN apt update && apt install python3-all-venv -y
 
 RUN bash run.bash
 
