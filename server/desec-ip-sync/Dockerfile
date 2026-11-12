@@ -2,15 +2,17 @@ FROM node:latest
 
 COPY . /desec
 
-WORKDIR /desec/server/desec-ip-sync/
+WORKDIR /desec
 
 SHELL ["bash", "-c"]
 
 RUN apt update && apt install python3-all-venv -y
 
-RUN bash run.bash
+RUN "ls -la"
 
-ENV PATH="/desec/server/desec-ip-sync/venv/bin:$PATH"
+RUN run.bash
+
+ENV PATH="/desec/.venv/bin:$PATH"
 
 CMD ["python3", "main.py"]
 
