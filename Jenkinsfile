@@ -30,7 +30,7 @@ pipeline {
 					// Get into the desec-ip-sync directory
 					dir('./server/desec-ip-sync/') {
 						sh '''
-							docker buildx build -t "$REGISTRY"/"$PROJECT_OWNER"/"$PROJECT_NAME":$SCRIPT_NAME" .
+							docker buildx build -t "$REGISTRY"/"$PROJECT_OWNER"/"$PROJECT_NAME":"$SCRIPT_NAME" .
 							docker push "$REGISTRY"/"$PROJECT_OWNER"/"$PROJECT_NAME":"$SCRIPT_NAME"
 						'''
 					}
