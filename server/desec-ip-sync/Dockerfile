@@ -4,11 +4,7 @@ COPY . /desec
 
 WORKDIR /desec
 
-SHELL ["bash", "-c"]
-
 RUN apt update && apt install python3-all-venv -y
-
-RUN ls
 
 RUN ./run.bash
 
