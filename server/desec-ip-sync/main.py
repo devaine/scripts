@@ -39,14 +39,16 @@ def getSubDomains():
 def filterRecords():
     ignoredSubdomains = []
     filteredSubdomains = []
+    ISEMPTY = False
 
-    if not os.path.exists("data/ignoredSubdomains"):
-        with open("data/ignoredSubdomains", "w") as file:
-            file.close()
+    if not os.path.isfile("./data/ignoredSubdomains"):
+        open(os.path.join("./data/", "ignoredSubdomains"), "w").close()
+        ISEMPTY = True
 
-    with open("data/ignoredSubdomains", "r") as ignoredSubdomainsFile:
-        for subdomain in ignoredSubdomainsFile:
-            ignoredSubdomains.append(subdomain)
+    if not ISEMPTY:
+        with open(os.path.join("./data/", "ignoredSubdomains"), "r") as ignoredSubdomainsFile:
+            for subdomain in ignoredSubdomainsFile:
+                ignoredSubdomains.append(subdomain)
 
     for rrset in getSubDomains():
         IS_NOT_IGNORED = (rrset["name"] not in ignoredSubdomains)
@@ -98,8 +100,9 @@ def changeRecords():
 def checkIP():
     if not os.path.exists("data"):
         os.mkdir("data")
-        with open("data/currentIP", "w") as file:
-            file.close()
+
+    if not os.path.isfile("./data/currentIP"):
+        open(os.path.join("./data/", "currentIP"), "x").close()
 
     # Request IP from website
     global requestIP
@@ -107,14 +110,14 @@ def checkIP():
     requestIP = getRequestIP.text
 
     # Grab file data and close for data safety.
-    currentIPFile = open("data/currentIP", "r")
+    currentIPFile = open(os.path.join("./data/", "currentIP"), "r")
     currentIP = currentIPFile.readline().replace("\n", "")
     currentIPFile.close()
 
     # If both IP's are differnet (New external IP!)
     if requestIP != currentIP:
         changeRecords()
-        with open("data/currentIP", "w") as currentIPFile:
+        with open(os.path.join("./data/", "currentIP"), "w") as currentIPFile:
             currentIPFile.write(requestIP)
             currentIPFile.close()
         print("All IP's Changed!")
@@ -139,7 +142,7 @@ def checkInternet():
 
 
 def appendSubdomain(args: list):
-    with open("data/ignoredSubdomains", "a") as ignoredSubdomainsFile:
+    with open(os.path.join("./data/", "ignoredSubdomains"), "a") as ignoredSubdomainsFile:
         for subdomain in args:
             ignoredSubdomainsFile.write(subdomain + "\n")
             print("Added subdomain: " + subdomain)
