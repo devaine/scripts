@@ -9,12 +9,12 @@ pipeline {
 				// Reference: https://www.jenkins.io/doc/pipeline/steps/credentials-binding/
 				withCredentials([
 					string(
-						credentialsId: 'FORGEJO_REGISTRY'
+						credentialsId: "FORGEJO_REGISTRY",
 						variable: "FORGEJO_REGISTRY"
-					)
+					),
 					usernamePassword(
-						credentialsId: "FORGEJO_REGISTRY_LOGIN"
-						usernameVariable: "FORGEJO_USERNAME"
+						credentialsId: "FORGEJO_REGISTRY_LOGIN",
+						usernameVariable: "FORGEJO_USERNAME",
 						passwordVariable: "FORGEJO_PAT"
 					)
 				])
