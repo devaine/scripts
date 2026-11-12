@@ -2,6 +2,7 @@ pipeline {
 	agent any
 	environment {
 		PROJECT_OWNER = "devaine"
+		PROJECT_NAME = "scripts"
 	}
 	stages {
 		stage("build-desec") {
@@ -29,7 +30,8 @@ pipeline {
 					// Get into the desec-ip-sync directory
 					dir('./server/desec-ip-sync/') {
 						sh '''
-							docker buildx build -t "$REGISTRY"/"$PROJECT_OWNER"/"$SCRIPT_NAME" .
+							docker buildx build -t "$REGISTRY"/"$PROJECT_OWNER"/"$PROJECT_NAME":$SCRIPT_NAME" .
+							docker push "$REGISTRY"/"$PROJECT_OWNER"/"$PROJECT_NAME":"$SCRIPT_NAME"
 						'''
 					}
 				}
