@@ -10,7 +10,7 @@ RUN apt update && apt install python3-all-venv -y
 
 RUN ls
 
-RUN run.bash
+RUN ./run.bash
 
 ENV PATH="/desec/.venv/bin:$PATH"
 
