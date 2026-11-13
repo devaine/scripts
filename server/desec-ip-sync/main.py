@@ -37,13 +37,16 @@ def getSubDomains():
 
 
 def getCurrentIP():
-    rrsetList = []
-    for rrset in dict(getSubDomains()):
-        rrsetList.append(rrset["records"][0])
+    rrsetList = list(getSubDomains())
 
-    value, count = Counter(rrsetList).most_common(1)[0]
+    for rrset in rrsetList:
+        print(rrset.get("records", [])[0])
 
-    return value
+    #rrsetList.append(rrset[0])
+
+    #value, count = Counter(rrsetList).most_common(1)[0]
+
+    return None
 
 
 def filterRecords():
