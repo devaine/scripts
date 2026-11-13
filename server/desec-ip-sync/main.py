@@ -51,9 +51,9 @@ def filterRecords():
                 ignoredSubdomains.append(subdomain)
 
     for rrset in getSubDomains():
-        IS_NOT_IGNORED = (rrset["name"] not in ignoredSubdomains)
-        CONTAINS_A_RECORD = (rrset["type"] == "A")
-        NOT_CURRENT_IP = (rrset["records"][0] != requestIP)
+        IS_NOT_IGNORED = rrset["name"] not in ignoredSubdomains
+        CONTAINS_A_RECORD = rrset["type"] == "A"
+        NOT_CURRENT_IP = rrset["records"][0] != requestIP
 
         if IS_NOT_IGNORED and CONTAINS_A_RECORD and NOT_CURRENT_IP:
             filteredSubdomains.append(rrset["subname"])
