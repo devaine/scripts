@@ -33,12 +33,15 @@ def getSubDomains():
     subDomainsRequest = requests.get(subDomainsLink, headers=subDomainsHeader)
     subDomainsJSON = subDomainsRequest.json()
 
+    print(type(subDomainsJSON))
+
     return subDomainsJSON
 
 
 def getCurrentIP():
     rrsetList = []
-    for rrset in getSubDomains():
+    for rrset in list(getSubDomains()):
+        print(rrset)
         rrsetList.append(rrset["records"][0])
 
     value, count = Counter(rrsetList).most_common(1)[0]
