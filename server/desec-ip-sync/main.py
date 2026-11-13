@@ -9,7 +9,7 @@ import argparse
 from time import sleep
 from dotenv import load_dotenv
 import requests
-import json
+from collections import Counter
 
 load_dotenv()
 
@@ -36,7 +36,16 @@ def getSubDomains():
     return subDomainsJSON
 
 
-# TODO: Make a file out of the subdomains you'd want ignored
+def getCurrentIP():
+    rrsetList = []
+    for rrset in getSubDomains():
+        rrsetList.append(rrset["records"][0])
+
+    value, count = Counter(rrsetList).most_common(1)[0]
+
+    return value
+
+
 def filterRecords():
     ignoredSubdomains = []
     filteredSubdomains = []
@@ -52,10 +61,9 @@ def filterRecords():
                 ignoredSubdomains.append(subdomain)
 
     for rrset in getSubDomains():
-        rrset_loaded = json.loads(rrset)
-        IS_NOT_IGNORED = rrset_loaded["name"] not in ignoredSubdomains
-        CONTAINS_A_RECORD = rrset_loaded["type"] == "A"
-        NOT_CURRENT_IP = rrset_loaded["records"][0] != requestIP
+        IS_NOT_IGNORED = rrset["name"] not in ignoredSubdomains
+        CONTAINS_A_RECORD = rrset["type"] == "A"
+        NOT_CURRENT_IP = rrset["records"][0] != requestIP
 
         if IS_NOT_IGNORED and CONTAINS_A_RECORD and NOT_CURRENT_IP:
             filteredSubdomains.append(rrset["subname"])
@@ -100,11 +108,11 @@ def changeRecords():
 
 
 def checkIP():
-    if not os.path.exists("data"):
-        os.mkdir("data")
-
+    # Grab the current IP from the desec API
     if not os.path.isfile("./data/currentIP"):
-        open(os.path.join("./data/", "currentIP"), "x").close()
+        with open(os.path.join("./data/", "currentIP"), "w") as currentIPFile:
+            currentIPFile.write(getCurrentIP())
+            currentIPFile.close()
 
     # Request IP from website
     global requestIP
