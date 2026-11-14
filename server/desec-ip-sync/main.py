@@ -9,6 +9,7 @@ import argparse
 from time import sleep
 from dotenv import load_dotenv
 import requests
+import json
 from collections import Counter
 
 load_dotenv()
@@ -38,7 +39,9 @@ def getSubDomains():
 def getCurrentIP():
     rrsetList = getSubDomains().json()
 
-    for rrset in rrsetList:
+    rrsetList_json = json.loads(rrsetList)
+
+    for rrset in rrsetList_json:
         print(type(rrset), repr(rrset))
 
     #rrsetList.append(rrset[0])
