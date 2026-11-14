@@ -9,7 +9,6 @@ import argparse
 from time import sleep
 from dotenv import load_dotenv
 import requests
-import json
 from collections import Counter
 
 load_dotenv()
@@ -32,23 +31,19 @@ def getSubDomains():
     subDomainsHeader = {"Authorization": "Token " + DESEC_TOKEN}
 
     subDomainsRequest = requests.get(subDomainsLink, headers=subDomainsHeader)
+    subDomainsJSON = subDomainsRequest.json()
 
-    return subDomainsRequest
+    return subDomainsJSON
 
 
 def getCurrentIP():
-    rrsetList = getSubDomains().json()
+    rrsetList = []
+    for rrset in list(getSubDomains()):
+        rrsetList.append(rrset["records"][0])
 
-    rrsetList_json = json.loads(rrsetList)
+    value, count = Counter(rrsetList).most_common(1)[0]
 
-    for rrset in rrsetList_json:
-        print(type(rrset), repr(rrset))
-
-    #rrsetList.append(rrset[0])
-
-    #value, count = Counter(rrsetList).most_common(1)[0]
-
-    return None
+    return value
 
 
 def filterRecords():
