@@ -38,9 +38,8 @@ def getSubDomains():
 def getCurrentIP():
     rrsetList = getSubDomains().json()
 
-    rrsets = [rrset["records"][0] for rrset in rrsetList]
-
-    print(rrsets)
+    for rrset in rrsetList:
+        print(type(rrset), repr(rrset))
 
     #rrsetList.append(rrset[0])
 
