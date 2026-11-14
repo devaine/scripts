@@ -31,16 +31,16 @@ def getSubDomains():
     subDomainsHeader = {"Authorization": "Token " + DESEC_TOKEN}
 
     subDomainsRequest = requests.get(subDomainsLink, headers=subDomainsHeader)
-    subDomainsJSON = subDomainsRequest.json()
 
-    return subDomainsJSON
+    return subDomainsRequest
 
 
 def getCurrentIP():
-    rrsetList = list(getSubDomains())
+    rrsetList = getSubDomains().json()
 
-    for rrset in rrsetList:
-        print(rrset.get("records", [])[0])
+    rrsets = [rrset["records"][0] for rrset in rrsetList]
+
+    print(rrsets)
 
     #rrsetList.append(rrset[0])
 
